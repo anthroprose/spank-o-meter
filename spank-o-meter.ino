@@ -5,18 +5,14 @@
 #include "SPI.h"
 #include "Wire.h"
 
-#define PIN 2
+#define PIN 3
 #define NUM_LEDS 24
 #define LOW_READ 10
 #define HIGH_READ 200
 
 sensors_event_t event;
 
-uint8_t dataPin  = 2;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
-
-//Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGB + NEO_KHZ800);
-Adafruit_WS2801 strip = Adafruit_WS2801(25, dataPin, clockPin);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGB + NEO_KHZ800);
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
 
 int fsrReading;      // the analog reading from. the FSR resistor divider
@@ -32,7 +28,7 @@ void setup(void) {
   strip.show();
   rainbowCycle(12);
   delay(1000);
-  digitalWrite(A1, 0);
+  analogWrite(A1, 0);
 
   if (!mma.begin()) { Serial.println("Couldnt start"); } else {
     Serial.println("MMA8451 found!");
@@ -50,11 +46,8 @@ void loop(void) {
   int i=0;
 
   mma.getEvent(&event);
-  //tmpvector = sqrt(sq(event.acceleration.x)+sq(event.acceleration.y)+sq(event.acceleration.z));
 
   if (event.acceleration.x > 1.5 || event.acceleration.y > 1.5 || event.acceleration.z > 1.5) {
-
-    //while (fsrReading < analogRead(A0)) { fsrReading = analogRead(A0); }
 
     while (i < 1000) {
 
@@ -69,7 +62,7 @@ void loop(void) {
       brightnessMapping = map(fsrReading,LOW_READ,HIGH_READ,1,255);
 
       Serial.print("X: \t"); Serial.print(event.acceleration.x);
-	    Serial.print("\t");
+      Serial.print("\t");
       Serial.print("Y: \t"); Serial.print(event.acceleration.y);
       Serial.print("\t");
       Serial.print("Z: \t"); Serial.print(event.acceleration.z);
@@ -93,10 +86,10 @@ void loop(void) {
 
         Serial.println(tmpvector);
 
-        digitalWrite(A1, HIGH);       // turn on pullup resistors
+        analogWrite(A1, 1024);       // turn on pullup resistors
         Serial.println("Poofer!");
         delay(500);
-        digitalWrite(A1, 0);      // turn on pullup resistors
+        analogWrite(A1, 0);      // turn on pullup resistors
 
         Serial.print("X:\t"); Serial.print(event.data[0]);
         Serial.print("\tY:\t"); Serial.print(event.data[1]);
@@ -111,6 +104,10 @@ void loop(void) {
 
         delay(1000);
 
+      } else {
+
+        delay(500);
+        
       }
 
     }
